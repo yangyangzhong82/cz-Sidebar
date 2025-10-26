@@ -40,6 +40,9 @@ ll::coro::CoroTask<> updateSidebarTask(std::atomic<bool>& running) {
         auto level = ll::service::getLevel();
         if (level) {
             level->forEachPlayer([&](Player& player) {
+                if (player.isSimulated()) {
+                    return true; // 不向模拟玩家设置侧边栏
+                }
                 auto uuid = player.getUuid();
                 if (!DatabaseManager::getInstance().getPlayerSidebarStatus(uuid)) {
 
