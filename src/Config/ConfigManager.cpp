@@ -79,6 +79,8 @@ bool ConfigManager::load(const std::string& path) {
     return true; // 不再保存，以保留用户文件的格式和注释
 }
 
+bool ConfigManager::reload() { return load(mConfigPath); }
+
 void ConfigManager::onReload(ReloadCallback callback) {
     mReloadCallbacks.push_back(std::move(callback));
 }
@@ -100,5 +102,3 @@ bool ConfigManager::save() {
 Config& ConfigManager::get() { return *mConfig; }
 
 const Config& ConfigManager::get() const { return *mConfig; }
-
-

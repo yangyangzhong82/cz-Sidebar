@@ -4,7 +4,10 @@
 #include "Config/ConfigManager.h"
 #include "DatabaseManager.h" 
 #include "logger.h"          
-namespace my_mod {
+#include "sidebar/SidebarManager.h" // 引入 SidebarManager
+#include "sidebar/command.h"
+#include <filesystem> // 引入 filesystem 头文件
+namespace Sidebar {
 
 Entry& Entry::getInstance() {
     static Entry instance;
@@ -34,9 +37,12 @@ bool Entry::enable() {
 
     // 初始化数据库
     auto& dbManager = Sidebar::DatabaseManager::getInstance();
-    // 假设数据库文件位于插件的data目录下
-    // TODO: 实际路径可能需要从配置或插件管理器获取
-    std::string dbPath = "plugins/Sidebar/data/sidebar.db";
+    std::string dbDirPath = "plugins/Sidebar/data/";
+    std::filesystem::path dbDir = dbDirPath;
+    if (!std::filesystem::exists(dbDir)) {
+        std::filesystem::create_directories(dbDir);
+    }
+    std::string dbPath = dbDirPath + "sidebar.db";
     if (!dbManager.openDatabase(dbPath)) {
         logger.error("无法初始化数据库，侧边栏功能可能无法正常工作。");
         return false;
@@ -45,6 +51,10 @@ bool Entry::enable() {
         logger.error("无法创建数据库表，侧边栏功能可能无法正常工作。");
         return false;
     }
+    RegisterSidebarCommand();
+        // 启动侧边栏管理器
+        Sidebar::SidebarManager::getInstance()
+            .start();
 
     return true;
 }
@@ -52,9 +62,17 @@ bool Entry::enable() {
 bool Entry::disable() {
     getSelf().getLogger().debug("Disabling...");
     // Code for disabling the mod goes here.
+
+    // 停止侧边栏管理器
+    Sidebar::SidebarManager::getInstance().stop();
+
+    // 关闭数据库
+    Sidebar::DatabaseManager::getInstance().closeDatabase();
+
     return true;
 }
 
-} // namespace my_mod
 
-LL_REGISTER_MOD(my_mod::Entry, my_mod::Entry::getInstance());
+} // namespace Sidebar
+
+LL_REGISTER_MOD(Sidebar::Entry, Sidebar::Entry::getInstance());

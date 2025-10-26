@@ -18,6 +18,9 @@ public:
     // 加载配置，如果文件不存在则创建默认配置
     bool load(const std::string& path);
 
+    // 重新加载配置
+    bool reload();
+
     // 保存配置
     bool save();
 
@@ -43,5 +46,3 @@ private:
     std::string             mConfigPath;
     std::vector<ReloadCallback> mReloadCallbacks;
 };
-
-

@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "DatabaseManager.h" // 引入数据库管理器
+#include "Config/ConfigManager.h" // 引入配置管理器
 
 namespace Sidebar {
 
@@ -53,6 +54,23 @@ void RegisterSidebarCommand() {
                 output.success("侧边栏已关闭。");
             } else {
                 output.error("无法关闭侧边栏。");
+            }
+        }
+    );
+
+    // Subcommand: /sidebar reload
+    command.overload<SidebarReload>().text("reload").execute(
+        [](CommandOrigin const& origin, CommandOutput& output, SidebarReload const&, ::Command const&) {
+            // 只有管理员或控制台可以执行此命令
+            if (origin.getPermissionsLevel() < CommandPermissionLevel::GameDirectors) {
+                output.error("你没有权限执行此命令。");
+                return;
+            }
+
+            if (ConfigManager::getInstance().reload()) {
+                output.success("配置文件已重新加载。");
+            } else {
+                output.error("配置文件重新加载失败。");
             }
         }
     );
