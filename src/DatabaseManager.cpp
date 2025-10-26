@@ -47,7 +47,7 @@ bool DatabaseManager::createTable() {
         sqlite3_free(errMsg);
         return false;
     }
-    logger.info("表 'player_sidebar_status' 已创建或已存在。");
+    logger.debug("表 'player_sidebar_status' 已创建或已存在。");
     return true;
 }
 
@@ -64,7 +64,7 @@ bool DatabaseManager::setPlayerSidebarStatus(const mce::UUID& playerUuid, bool e
         sqlite3_free(errMsg);
         return false;
     }
-    logger.info("玩家 {} 侧边栏状态已设置为: {}", uuidStr, (enabled ? "开启" : "关闭"));
+    logger.debug("玩家 {} 侧边栏状态已设置为: {}", uuidStr, (enabled ? "开启" : "关闭"));
     return true;
 }
 
@@ -85,9 +85,9 @@ bool DatabaseManager::getPlayerSidebarStatus(const mce::UUID& playerUuid) {
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
         status = (sqlite3_column_int(stmt, 0) == 1);
-        logger.info("玩家 {} 侧边栏状态为: {}", uuidStr, (status ? "开启" : "关闭"));
+        logger.debug("玩家 {} 侧边栏状态为: {}", uuidStr, (status ? "开启" : "关闭"));
     } else if (rc == SQLITE_DONE) {
-        logger.info("玩家 {} 的侧边栏状态未找到，默认为关闭。", uuidStr);
+        logger.debug("玩家 {} 的侧边栏状态未找到，默认为关闭。", uuidStr);
         status = false; // Default to disabled if not found
     } else {
         logger.error("查询玩家 {} 侧边栏状态失败 (step): {}", uuidStr, sqlite3_errmsg(db));

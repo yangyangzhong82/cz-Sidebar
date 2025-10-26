@@ -34,15 +34,13 @@ bool Entry::load() {
 bool Entry::enable() {
     getSelf().getLogger().debug("Enabling...");
     // Code for enabling the mod goes here.
-
+    auto Path = getSelf().getDataDir();
     // 初始化数据库
     auto& dbManager = Sidebar::DatabaseManager::getInstance();
-    std::string dbDirPath = "plugins/Sidebar/data/";
-    std::filesystem::path dbDir = dbDirPath;
-    if (!std::filesystem::exists(dbDir)) {
-        std::filesystem::create_directories(dbDir);
+    if (!std::filesystem::exists(Path)) {
+        std::filesystem::create_directories(Path);
     }
-    std::string dbPath = dbDirPath + "sidebar.db";
+    std::string dbPath = (Path / "sidebar.db").string();
     if (!dbManager.openDatabase(dbPath)) {
         logger.error("无法初始化数据库，侧边栏功能可能无法正常工作。");
         return false;
