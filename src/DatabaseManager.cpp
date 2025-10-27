@@ -97,4 +97,33 @@ bool DatabaseManager::getPlayerSidebarStatus(const mce::UUID& playerUuid) {
     return status;
 }
 
+bool DatabaseManager::playerExists(const mce::UUID& playerUuid) {
+    sqlite3_stmt* stmt;
+    std::string uuidStr = playerUuid.asString();
+    std::string sql = "SELECT 1 FROM player_sidebar_status WHERE uuid = ?;";
+    bool exists = false;
+
+    int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    if (rc != SQLITE_OK) {
+        logger.error("检查玩家 {} 是否存在失败 (prepare): {}", uuidStr, sqlite3_errmsg(db));
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, uuidStr.c_str(), -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        exists = true;
+        logger.debug("玩家 {} 存在于数据库中。", uuidStr);
+    } else if (rc == SQLITE_DONE) {
+        logger.debug("玩家 {} 不存在于数据库中。", uuidStr);
+        exists = false;
+    } else {
+        logger.error("检查玩家 {} 是否存在失败 (step): {}", uuidStr, sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    return exists;
+}
+
 } // namespace Sidebar

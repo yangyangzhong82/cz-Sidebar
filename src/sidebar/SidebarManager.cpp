@@ -20,7 +20,7 @@ using namespace ll::chrono_literals;
 SidebarManager::SidebarManager()
 : mRunning(false),
   mLastLineGroupSwitchTime(std::chrono::steady_clock::now()),
-  mThreadPool("SidebarThreadPool", 2) {} // 初始化线程池，设置2个线程
+  mThreadPool("SidebarThreadPool", ConfigManager::getInstance().get().threadPoolSize) {} // 初始化线程池，使用配置的线程数量
 
 SidebarManager::~SidebarManager() { stop(); }
 
@@ -46,7 +46,29 @@ ll::coro::CoroTask<> updateSidebarTask(std::atomic<bool>& running) {
                 auto uuid = player.getUuid();
                 // 捕获 player 的引用，以便在异步任务中使用
                 auto& playerRef = player;
-                SidebarManager::getInstance().mThreadPool.execute([&playerRef, &config]() {
+                SidebarManager::getInstance().mThreadPool.execute([&playerRef, &config, uuid]() {
+                    // 检查玩家的侧边栏状态
+                    bool playerSidebarStatus;
+                    bool playerExistsInDb = DatabaseManager::getInstance().playerExists(uuid);
+
+                    if (!playerExistsInDb) {
+                        // 如果玩家不在数据库中，根据默认配置设置侧边栏状态
+                        playerSidebarStatus = config.defaultSidebarStatus;
+                        // 第一次进入，根据配置写入数据库
+                        DatabaseManager::getInstance().setPlayerSidebarStatus(uuid, playerSidebarStatus);
+                    } else {
+                        // 玩家已存在于数据库中，获取其保存的侧边栏状态
+                        playerSidebarStatus = DatabaseManager::getInstance().getPlayerSidebarStatus(uuid);
+                    }
+
+                    if (!playerSidebarStatus) {
+                        // 如果侧边栏已关闭，则移除侧边栏并跳过更新
+                        ll::thread::ServerThreadExecutor::getDefault().execute([&playerRef]() {
+                            Sidebar::removeSidebar(&playerRef);
+                        });
+                        return;
+                    }
+
                     // 获取侧边栏配置
                     auto& sidebarConfig = config.sidebar;
 

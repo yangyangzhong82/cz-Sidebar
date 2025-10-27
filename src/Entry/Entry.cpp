@@ -1,12 +1,13 @@
 #include "Entry/Entry.h"
 
-#include "ll/api/mod/RegisterHelper.h"
 #include "Config/ConfigManager.h"
-#include "DatabaseManager.h" 
-#include "logger.h"          
+#include "DatabaseManager.h"
+#include "ll/api/mod/RegisterHelper.h"
+#include "logger.h"
 #include "sidebar/SidebarManager.h" // 引入 SidebarManager
 #include "sidebar/command.h"
 #include <filesystem> // 引入 filesystem 头文件
+
 namespace Sidebar {
 
 Entry& Entry::getInstance() {
@@ -50,9 +51,8 @@ bool Entry::enable() {
         return false;
     }
     RegisterSidebarCommand();
-        // 启动侧边栏管理器
-        Sidebar::SidebarManager::getInstance()
-            .start();
+    // 启动侧边栏管理器
+    Sidebar::SidebarManager::getInstance().start();
 
     return true;
 }

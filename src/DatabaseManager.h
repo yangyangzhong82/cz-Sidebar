@@ -16,6 +16,7 @@ public:
     bool createTable();
     bool setPlayerSidebarStatus(const mce::UUID& playerUuid, bool enabled);
     bool getPlayerSidebarStatus(const mce::UUID& playerUuid);
+    bool playerExists(const mce::UUID& playerUuid);
 
 private:
     DatabaseManager() = default;
