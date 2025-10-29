@@ -17,6 +17,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
     Config,
     version,
     enablePlugin,
+    defaultSidebarStatus,
     update_interval,
     threadPoolSize,
     sidebar
