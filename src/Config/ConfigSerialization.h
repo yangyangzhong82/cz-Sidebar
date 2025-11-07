@@ -1,24 +1,5 @@
 #pragma once
 
-#include "JsonMacros.h"
-#include "config.h"
-#include <nlohmann/json.hpp>
+#include "AutoSerialization.h" // 引入新的通用序列化头文件
+#include "config.h"            // 引入您的配置结构体定义
 
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
-    SidebarContent,
-    dynamicTitles,
-    dynamicLines,
-    currentLineGroupIndex,
-    lineGroupSwitchInterval
-)
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
-    Config,
-    version,
-    enablePlugin,
-    defaultSidebarStatus,
-    update_interval,
-    threadPoolSize,
-    sidebar
-)

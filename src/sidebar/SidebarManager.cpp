@@ -92,8 +92,7 @@ ll::coro::CoroTask<> updateSidebarTask(std::atomic<bool>& running) {
                     }
 
                     // 创建玩家上下文
-                    PA::PlayerContext playerCtx;
-                    playerCtx.player = &playerRef;
+                    auto playerCtx = PA::PlayerContext::factory(&playerRef);
 
                     // 获取占位符服务
                     auto paService = PA::PA_GetPlaceholderService();
@@ -103,7 +102,7 @@ ll::coro::CoroTask<> updateSidebarTask(std::atomic<bool>& running) {
                     if (!sidebarConfig.dynamicTitles.empty()) {
                         processedTitle = paService->replace(
                             sidebarConfig.dynamicTitles[sidebarConfig.currentLineGroupIndex],
-                            &playerCtx
+                            playerCtx.get()
                         );
                     } else {
                         processedTitle = "Sidebar"; // 默认标题
@@ -114,7 +113,7 @@ ll::coro::CoroTask<> updateSidebarTask(std::atomic<bool>& running) {
                     if (currentLines) {
                         int score = currentLines->size(); // 从行数开始递减作为分数
                         for (const auto& line : *currentLines) {
-                            std::string processedLine = paService->replace(line, &playerCtx);
+                            std::string processedLine = paService->replace(line, playerCtx.get());
                             sidebarData.emplace_back(processedLine, score--);
                         }
                     }
